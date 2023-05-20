@@ -17,21 +17,21 @@ use App\Http\Controllers\UserController;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+  return $request->user();
 });
 
 Route::group([
-    'middleware' => 'api',
-    'prefix' => 'auth'
+  'middleware' => 'api',
+  'prefix' => 'auth'
 ], function ($router) {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+  Route::post('/login', [AuthController::class, 'login']);
+  Route::post('/register', [AuthController::class, 'register']);
+  Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 Route::prefix('users')->group(function () {
-    Route::get('/', [UserController::class, 'index']);
-    Route::get('/profile/{id}', [UserController::class, 'userProfile']);   
-    Route::put('/update/{id}', [UserController::class, 'update']);
-    Route::delete('/delete/{id}', [UserController::class, 'destroy']);
+  Route::get('/', [UserController::class, 'index']);
+  Route::get('/profile/{id}', [UserController::class, 'userProfile']);
+  Route::put('/update/{id}', [UserController::class, 'update']);
+  Route::delete('/delete/{id}', [UserController::class, 'destroy']);
 });

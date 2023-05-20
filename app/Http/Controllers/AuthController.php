@@ -10,73 +10,72 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
-    }
+  public function __construct()
+  {
+    $this->middleware('auth:api', ['except' => ['login', 'register']]);
+  }
 
-    
-public function login(Request $request)
-{
+  public function login(Request $request)
+  {
     $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
+      'email' => 'required|email',
+      'password' => 'required|string',
     ]);
 
     $user = User::where('email', $request->email)->first();
 
     if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json([
-            'message' => 'Invalid email or password'
-        ], 401);
+      return response()->json([
+        'message' => 'Credenciales invalidas, por favor verifiquelas'
+      ], 401);
     }
 
     $token = null;
     try {
-        if (!$token = JWTAuth::fromUser($user)) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
-        }
-    } catch (JWTException $e) {
+      if (!$token = JWTAuth::fromUser($user)) {
         return response()->json([
-            'message' => 'Could not create token'
-        ], 500);
+          'message' => 'Credenciales invalidas'
+        ], 401);
+      }
+    } catch (JWTException $e) {
+      return response()->json([
+        'message' => 'Error de servidor'
+      ], 500);
     }
 
     return response()->json([
-        'token' => $token,
-        'user' => $user
+      'token' => $token,
+      'user' => $user
     ]);
-}
-public function register(Request $request)
-{
+  }
+  public function register(Request $request)
+  {
     $validator = Validator::make($request->all(), [
-        'name' => 'required|string',
-        'email' => 'required|string|email',
-        'password' => 'required|string',
+      'name' => 'required|string',
+      'email' => 'required|string|email',
+      'password' => 'required|string',
     ]);
 
     if ($validator->fails()) {
-        return response()->json($validator->errors()->toJson(), 400);
+      return response()->json($validator->errors()->toJson(), 400);
     }
 
     $existingUser = User::where('email', $request->email)->first();
     if ($existingUser) {
-        return response()->json([
-            'message' => 'El correo electrónico ya ha sido registrado.',
-        ], 400);
+      return response()->json([
+        'message' => 'El correo electrónico ya ha sido registrado.',
+      ], 400);
     }
 
     $user = User::create(
-        array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]
-        )
+      array_merge(
+        $validator->validated(),
+        ['password' => bcrypt($request->password)]
+      )
     );
     return response()->json([
-        'message' => 'Usuario registrado correctamente',
-        'user' => $user
+      'message' => 'Usuario registrado correctamente',
+      'user' => $user
     ], 201);
-}
+  }
 }
